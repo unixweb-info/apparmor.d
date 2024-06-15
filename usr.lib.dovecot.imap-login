@@ -10,6 +10,7 @@ profile dovecot-imap-login /usr/lib/dovecot/imap-login {
   include <abstractions/base>
   include <abstractions/dovecot-common>
   include <abstractions/openssl>
+  # include if exists <local/usr.lib.dovecot.imap-login>
 
   # These are capabilities, which are specific privileges that the Dovecot IMAP login service is allowed to use.
   capability setuid,

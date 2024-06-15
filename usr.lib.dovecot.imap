@@ -3,6 +3,7 @@
 # This profile is for the Dovecot IMAP (Internet Message Access Protocol) service.
 
 include <tunables/global>  # Includes global tunables, which are system-wide settings.
+include <tunables/dovecot>
 
 # The profile begins here. The program path is /usr/lib/dovecot/imap.
 profile dovecot-imap /usr/lib/dovecot/imap {
