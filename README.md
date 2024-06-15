@@ -13,13 +13,12 @@ The profiles cover a range of services, including but not limited to Dovecot, Cl
 To use these profiles, you would typically install AppArmor on your server, place the profiles in the appropriate directory (usually `/etc/apparmor.d/`), and then reload AppArmor. Please refer to the AppArmor and ISPmanager documentation for more detailed instructions.
 
 ### Download the script from the provided URL
-```markdown wget https://raw.githubusercontent.com/unixweb-info/Automatic-configuration-of-AppArmor-profiles-in-ISPmanager/main/apparmor-install-and-setting-in-ispmanager6.sh```
+`wget https://raw.githubusercontent.com/unixweb-info/Automatic-configuration-of-AppArmor-profiles-in-ISPmanager/main/apparmor-install-and-setting-in-ispmanager6.sh`
 
 ### Make the downloaded script executable
-```markdown chmod +x apparmor-install-and-setting-in-ispmanager6.sh<```
-
+`markdown chmod +x apparmor-install-and-setting-in-ispmanager6.sh`
 ### Run the script
-```markdown ./apparmor-install-and-setting-in-ispmanager6.sh```
+`markdown ./apparmor-install-and-setting-in-ispmanager6.sh`
 #### Bash Script
 ```bash
 #!/bin/bash
