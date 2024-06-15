@@ -1,0 +1,65 @@
+# Last Modified: Sun Jan 21 21:11:33 2024
+# Copyright (C) Author: Kriachko Aleksei admin@unixweb.info
+# This profile is for the Dovecot IMAP (Internet Message Access Protocol) service.
+
+include <tunables/global>  # Includes global tunables, which are system-wide settings.
+
+# The profile begins here. The program path is /usr/lib/dovecot/imap.
+profile dovecot-imap /usr/lib/dovecot/imap {
+  # These are abstractions, which are sets of rules that can be included in multiple profiles.
+  include <abstractions/base>
+  include <abstractions/dovecot-common>
+  include <abstractions/nameservice>
+
+  # This rule denies the block_suspend capability.
+  deny capability block_suspend,
+
+  # This rule allows the Dovecot IMAP service to use the setuid capability.
+  capability setuid,
+
+  # This rule allows the Dovecot IMAP service to use UNIX domain sockets.
+  network unix stream,
+
+  # These rules allow read access to various configuration files and directories.
+  /etc/dovecot/conf.d/ r,
+  /etc/dovecot/conf.d/** r,
+  /etc/dovecot/dovecot.conf r,
+
+  # This rule allows the Dovecot IMAP service to execute the Doveconf program.
+  /usr/bin/doveconf rix,
+
+  # This rule allows the Dovecot IMAP service to execute itself.
+  /usr/lib/dovecot/imap mrix,
+
+  # This rule allows read access to various Dovecot shared resources.
+  /usr/share/dovecot/** r,
+
+  # These rules allow read and write access to the Dovecot mail store.
+  @{DOVECOT_MAILSTORE}/ rw,
+  @{DOVECOT_MAILSTORE}/** rwlk,
+
+  # This rule allows read access to the user data directories.
+  @{USERDATA} r,
+
+  # These rules allow read and write access to the current attribute file of each process and the Dovecot auth master.
+  @{PROC}/@{pid}/attr/{apparmor/,}current rw,
+  @{run}/dovecot/auth-master rw,
+
+  # This rule allows read access to the Dovecot IMAP login directory.
+  @{run}/dovecot/login/imap rw,
+
+  # This rule allows read access to the Dovecot mounts file.
+  @{run}/dovecot/mounts r,
+
+  # These rules allow read and write access to various run files owned by the user.
+  owner /run/dovecot/* rw,
+  owner /tmp/dovecot.imap.* rw,
+
+  # These rules allow various access to the user's email directories.
+  owner @{USERDATA}/email/** k,
+  owner @{USERDATA}/email/** l,
+  owner @{USERDATA}/email/** rw,
+  owner @{USERDATA}/email/*/*/.maildir/* rwk,
+  owner @{USERDATA}/email/*/*/.maildir/dovecot.index.log rwk,
+
+}

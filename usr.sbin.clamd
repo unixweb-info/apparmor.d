@@ -1,0 +1,69 @@
+# Last Modified: Sat Jun 15 12:34:04 2024
+# Copyright (C) Author: Kriachko Aleksei admin@unixweb.info
+# This profile is for the ClamAV antivirus daemon.
+
+include <tunables/global>  # Includes global tunables, which are system-wide settings.
+
+# The profile begins here. The program path is /usr/sbin/clamd.
+/usr/sbin/clamd {
+  # These are abstractions, which are sets of rules that can be included in multiple profiles.
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/openssl>
+
+  # These are capabilities, which are specific privileges that the ClamAV daemon is allowed to use.
+  capability dac_override,
+  capability setgid,
+  capability setuid,
+  capability chown,
+
+  # These rules allow read access to the filesystems file and the status file of each process.
+  @{PROC}/filesystems r,
+  @{PROC}/[0-9]*/status r,
+
+  # This rule allows read access to the ClamAV configuration file.
+  /etc/clamav/clamd.conf r,
+
+  # This rule allows the ClamAV daemon to execute itself.
+  /usr/sbin/clamd mr,
+
+  # These rules allow read and write access to the temporary directory.
+  /tmp/ rw,
+  /tmp/** krw,
+
+  # These rules allow read and write access to the ClamAV library directory and log directory.
+  /var/lib/clamav/ r,
+  /var/lib/clamav/** krw,
+  /var/log/clamav/* krw,
+
+  # These rules allow write access to the ClamAV control file and PID file.
+  /{,var/}run/clamav/clamd.ctl w,
+  /{,var/}run/clamav/clamd.pid w,
+
+  # These rules allow read access to the ClamSMTP and Qpsmtpd spool directories.
+  /var/spool/clamsmtp/* r,
+  /var/spool/qpsmtpd/* r,
+
+  # These rules allow read access to the P3Scan and HAVP spool directories.
+  /var/spool/p3scan/children/** r,
+  /var/spool/havp/** r,
+
+  # This rule allows read access to the Amavisd-new temporary directory.
+  /var/lib/amavis/tmp/** r,
+
+  # This rule allows read access to the MIMEDefang work directory.
+  /var/spool/MIMEDefang/mdefang-*/Work/ r,
+  /var/spool/MIMEDefang/mdefang-*/Work/** r,
+
+  # This rule allows read access to the Exim4 spool directory.
+  /var/spool/exim4/** r,
+
+  # These rules allow read access to the home directory and user data directories.
+  @{HOME}/ r,
+  @{HOME}/** r,
+  @{USERDATA}/ r,
+  @{USERDATA}/** r,
+
+  # Site-specific additions and overrides. See local/README for details.
+  #include <local/usr.sbin.clamd>
+}

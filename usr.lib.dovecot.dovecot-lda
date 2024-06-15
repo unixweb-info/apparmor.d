@@ -1,0 +1,139 @@
+# Last Modified: Wed Jul 26 03:26:24 2023
+# Copyright (C) Author: Kriachko Aleksei admin@unixweb.info
+include <tunables/global>
+include <tunables/dovecot>
+
+# ------------------------------------------------------------------
+#
+#    Copyright (C) 2013-2020 Christian Boltz
+#
+#    This program is free software; you can redistribute it and/or
+#    modify it under the terms of version 2 of the GNU General Public
+#    License published by the Free Software Foundation.
+#
+# ------------------------------------------------------------------
+# vim: ft=apparmor
+
+# This is the start of the AppArmor profile for Dovecot's Local Delivery Agent (LDA)
+profile dovecot-dovecot-lda /usr/lib/dovecot/dovecot-lda flags=(attach_disconnected) {
+  # Include base abstractions
+  include <abstractions/base>
+  include <abstractions/dovecot-common>
+  include <abstractions/nameservice>
+  # Include local customizations if they exist
+  # include if exists <local/usr.lib.dovecot.dovecot-lda>
+
+  # Allow setuid capability
+  capability setuid,
+
+  # Read access to Dovecot configuration
+  /etc/dovecot/** r,
+  # Execute Dovecot configuration binary
+  /usr/bin/doveconf mrix,
+  # Execute Dovecot LDA binary
+  /usr/lib/dovecot/dovecot-lda mrix,
+  # Read access to Dovecot protocol definitions
+  /usr/share/dovecot/protocols.d/ r,
+  /usr/share/dovecot/protocols.d/** r,
+  # Execute sendmail in a child profile
+  /usr/{bin,sbin}/sendmail Cx -> sendmail,
+  # Read and write access to Dovecot mail store
+  @{DOVECOT_MAILSTORE}/ rw,
+  @{DOVECOT_MAILSTORE}/** rwlk,
+  # Read access to process mounts
+  @{PROC}/*/mounts r,
+  # Read and write access to Dovecot userdb
+  @{run}/dovecot/auth-userdb rw,
+  # Read access to Dovecot mounts
+  @{run}/dovecot/mounts r,
+  # Read and write access to Dovecot LDA temporary files
+  owner /tmp/dovecot.lda.* rw,
+  # Read and write access to user email data
+  owner @{USERDATA}/email/** rwk,
+
+  # This is the start of the child profile for sendmail
+  profile sendmail /usr/{bin,sbin}/sendmail flags=(complain,attach_disconnected) {
+    # Include base abstractions
+    include <abstractions/base>
+    include <abstractions/consoles>
+    include <abstractions/hosts_access>
+    include <abstractions/nameservice>
+    include <abstractions/postfix-common>
+    include <abstractions/user-tmp>
+
+    # Allow sys_ptrace capability
+    capability sys_ptrace,
+
+    # Read and write access to aliases
+    /etc/aliases rw, # newaliases is a symlink to sendmail, so it's
+    /etc/aliases.db rw, # actually the same binary
+    # Read access to system mount table
+    /etc/fstab r,
+    # Read access to mail configuration
+    /etc/mail/* r,
+    # Read and write access to mail statistics
+    /etc/mail/statistics rw,
+    # Read access to system mount table
+    /etc/mtab r,
+    # Read access to Postfix aliases
+    /etc/postfix/aliases r,
+    # Read and write access to Postfix aliases database
+    /etc/postfix/aliases.db rw, # newaliases again
+    # Read access to Sendmail configuration
+    /etc/sendmail.cf r,
+    /etc/sendmail.cw r,
+    # Read access to system shells
+    /etc/shells r,
+    # Read access to root's mail forwarding rules
+    /root/.forward r,
+    # Write access to root's dead letter file
+    /root/dead.letter w,
+    # Execute procmail in a child profile
+    /usr/bin/procmail Px,
+    # Execute Postfix master process in a child profile
+    /usr/lib/postfix/{bin/,sbin/,}master Px,
+    # Execute Postfix showq process in a child profile
+    /usr/lib/postfix/{bin/,sbin/,}showq Px,
+    # Execute Postfix SMTP daemon in a child profile
+    /usr/lib/postfix/{bin/,sbin/,}smtpd Px,
+    # Execute Postfix alias utility in a child profile
+    /usr/{bin,sbin}/postalias Px,
+    # Execute Postfix mail drop utility in a child profile
+    /usr/{bin,sbin}/postdrop Px,
+    # Execute Postfix in a child profile
+    /usr/{bin,sbin}/postfix Px,
+    # Execute Postfix queue utility in a child profile
+    /usr/{bin,sbin}/postqueue Px,
+    # Execute Sendmail binary
+    /usr/{bin,sbin}/sendmail mrix,
+    # Execute Postfix Sendmail binary
+    /usr/{bin,sbin}/sendmail.postfix mrix,
+    # Execute Sendmail binary
+    /usr/{bin,sbin}/sendmail.sendmail mrix,
+    # Read and write access to client mail queue
+    /var/spool/clientmqueue/* rwl,
+    # Read and write access to mail spool
+    /var/spool/mail/* rwl,
+    # Read and write access to mail queue
+    /var/spool/mqueue/* rwl,
+    # Read and write access to Postfix mail drop
+    /var/spool/postfix/maildrop/* rwl,
+    # Write access to Postfix pickup service
+    /var/spool/postfix/public/pickup w,
+    # Write access to Postfix queue manager
+    /var/spool/postfix/public/qmgr w,
+    # Write access to Postfix show queue service
+    /var/spool/postfix/public/showq w,
+    # Read access to system load averages
+    @{PROC}/loadavg r,
+    # Read access to IPv6 network interfaces
+    @{PROC}/net/if_inet6 r,
+    # Read and write access to Sendmail PID file
+    @{run}/sendmail.pid rwl,
+    # Read and write access to Sendmail client PID file
+    @{run}/sm-client.pid rwl,
+    # Read and write access to user terminal information
+    @{run}/utmp rw,
+
+  }
+}

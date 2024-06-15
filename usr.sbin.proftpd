@@ -1,0 +1,69 @@
+# Last Modified: Tue Aug  1 13:04:19 2023
+# Copyright (C) Author: Kriachko Aleksei admin@unixweb.info
+# This profile is for the ProFTPD server, a highly configurable FTP server.
+
+include <tunables/global>  # Includes global tunables, which are system-wide settings.
+
+# The profile begins here. The program path is /usr/sbin/proftpd.
+/usr/sbin/proftpd {
+  # These are abstractions, which are sets of rules that can be included in multiple profiles.
+  include <abstractions/base>
+  include <abstractions/nameservice>
+  include <abstractions/openssl>
+  include <abstractions/postfix-common>
+  include <abstractions/ubuntu-browsers.d/plugins-common>
+
+  # These are capabilities, which are specific privileges that the ProFTPD server is allowed to use.
+  capability dac_read_search,
+  capability ipc_lock,
+  capability kill,
+
+  # These rules allow read access to various configuration files and directories.
+  /etc/proftpd/* r,
+  /etc/proftpd/conf.d/limits.conf r,
+
+  # This rule allows write access to the ProFTPD scoreboard file.
+  /run/proftpd.scoreboard k,
+
+  # These rules allow read and execute access to the ProFTPD binary and its linker.
+  /usr/lib/x86_64-linux-gnu/ld-*.so mr,
+  /usr/sbin/proftpd mr,
+
+  # This rule allows write access to the ProFTPD log directory.
+  /var/log/proftpd/* w,
+
+  # These rules allow read access to the user's web files.
+  @{USERDATA}/www/ r,
+
+  # These rules allow read access to various configuration files owned by the user.
+  owner /etc/ftpusers r,
+  owner /etc/proftpd/conf.d/ r,
+  owner /etc/proftpd/conf.d/sftpd.conf r,
+  owner /etc/proftpd/keys/sftp_host_dsa_key r,
+  owner /etc/proftpd/keys/sftp_host_rsa_key r,
+
+  # These rules allow write access to various run files owned by the user.
+  owner /run/proftpd.pid w,
+  owner /run/proftpd.scoreboard rwk,
+  owner /run/proftpd.scoreboard.lck rwk,
+  owner /run/proftpd.sock w,
+  owner /run/test.sock w,
+
+  # This rule allows read access to the locale directory.
+  owner /usr/share/locale/ r,
+
+  # This rule allows write access to the wtmp log file.
+  owner /var/log/wtmp w,
+
+  # These rules allow various access to the user's directories and files.
+  owner @{USERDATA}/ r,
+  owner @{USERDATA}/* r,
+  owner @{USERDATA}/email/*/ r,
+  owner @{USERDATA}/tmp/ r,
+  owner @{USERDATA}/*/** r,
+  owner @{USERDATA}/www/ rw,
+  owner @{USERDATA}/www/** rw,
+  owner @{USERDATA}/www/*/ rw,
+  owner @{USERDATA}/www/*/** rw,
+
+}

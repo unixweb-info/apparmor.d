@@ -1,0 +1,30 @@
+# Last Modified: Wed Jul 26 03:04:59 2023
+include <tunables/global>
+
+# ------------------------------------------------------------------
+#
+#    Copyright (C) 2018-2020 Christian Boltz
+#
+#    This program is free software; you can redistribute it and/or
+#    modify it under the terms of version 2 of the GNU General Public
+#    License published by the Free Software Foundation.
+#
+# ------------------------------------------------------------------
+# vim: ft=apparmor
+
+
+profile dovecot-stats /usr/lib/dovecot/stats {
+  include <abstractions/base>
+  include <abstractions/dovecot-common>
+  # include if exists <local/usr.lib.dovecot.stats>
+
+  capability setuid,
+  capability sys_chroot,
+
+  network inet stream,
+  network inet6 stream,
+
+  /run/dovecot/* rw,
+  /usr/lib/dovecot/stats mr,
+
+}

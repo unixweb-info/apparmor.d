@@ -1,0 +1,67 @@
+# Last Modified: Wed Jul 26 03:04:59 2023
+# Copyright (C) Author: Kriachko Aleksei admin@unixweb.info
+
+include <tunables/global>
+
+# ------------------------------------------------------------------
+#
+#    Copyright (C) 2013-2020 Christian Boltz
+#    Copyright (C) 2014 Christian Wittmer
+#
+#    This program is free software; you can redistribute it and/or
+#    modify it under the terms of version 2 of the GNU General Public
+#    License published by the Free Software Foundation.
+#
+# ------------------------------------------------------------------
+# vim: ft=apparmor
+
+# This is the start of the AppArmor profile for Dovecot's authentication service
+profile dovecot-auth /usr/lib/dovecot/auth {
+  # Include base abstractions
+  include <abstractions/authentication>
+  include <abstractions/base>
+  include <abstractions/dovecot-common>
+  include <abstractions/mysql>
+  include <abstractions/nameservice>
+  include <abstractions/openssl>
+  include <abstractions/wutmp>
+  # Include local customizations if they exist
+  # include if exists <local/usr.lib.dovecot.auth>
+
+  # Allow various capabilities
+  capability audit_write,
+  capability dac_override,
+  capability dac_read_search,
+  capability setuid,
+  capability sys_chroot,
+
+  # Read access to Dovecot configuration
+  /etc/dovecot/* r,
+  # Read access to MySQL configuration
+  /etc/my.cnf r,
+  /etc/my.cnf.d/ r,
+  /etc/my.cnf.d/*.cnf r,
+  # Read and write access to Dovecot runtime data
+  /run/dovecot/* rw,
+  # Execute Dovecot auth binary
+  /usr/lib/dovecot/auth mr,
+  # Read access to Dovecot auth chroot data
+  /var/lib/dovecot/auth-chroot/* r,
+  # Read and write access to Postfix auth socket
+  /var/spool/postfix/private/auth rw,
+  # Read and write access to temporary IMAP, POP, Sieve, and SMTP data
+  /var/tmp/imap_* rw,
+  /var/tmp/pop_* rw,
+  /var/tmp/sieve_* rw,
+  /var/tmp/smtp_* rw,
+  # Read and write access to Dovecot runtime data
+  @{run}/dovecot/anvil-auth-penalty rw,
+  @{run}/dovecot/auth-master rw,
+  @{run}/dovecot/auth-token-secret.dat{,.tmp} rw,
+  @{run}/dovecot/auth-userdb rw,
+  @{run}/dovecot/auth-worker rw,
+  @{run}/dovecot/login/login rw,
+  @{run}/dovecot/old-stats-user w,
+  @{run}/dovecot/stats-user rw,
+
+}

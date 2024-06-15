@@ -1,0 +1,34 @@
+# Copyright (C) Author: Kriachko Aleksei admin@unixweb.info
+# Last Modified: Sat Jun 15 01:16:26 2024
+
+# Specify the AppArmor interface version
+abi <abi/3.0>,
+
+# Include global tunables
+include <tunables/global>
+
+# This is the start of the AppArmor profile for Dovecot's configuration tool
+/usr/bin/doveconf {
+  # Include base abstractions
+  include <abstractions/base>
+
+  # Read access to Dovecot configuration
+  /etc/dovecot/* r,
+  /etc/dovecot/** r,
+  # Read access to host configuration
+  /etc/host.conf r,
+  # Read access to hosts file
+  /etc/hosts r,
+  # Read access to dynamic linker cache
+  /etc/ld.so.cache r,
+  # Read access to Name Service Switch configuration
+  /etc/nsswitch.conf r,
+  # Read access to systemd-resolved stub resolver configuration
+  /run/systemd/resolve/stub-resolv.conf r,
+  # Execute Dovecot configuration binary
+  /usr/bin/doveconf mr,
+  # Read access to Dovecot shared data
+  /usr/share/dovecot/** r,
+
+}
+

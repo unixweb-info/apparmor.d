@@ -1,0 +1,35 @@
+# Last Modified: Wed Jul 26 03:04:59 2023
+# Copyright (C) Author: Kriachko Aleksei admin@unixweb.info
+# This profile is for the Dovecot IMAP login service.
+
+include <tunables/global>  # Includes global tunables, which are system-wide settings.
+
+# The profile begins here. The program path is /usr/lib/dovecot/imap-login.
+profile dovecot-imap-login /usr/lib/dovecot/imap-login {
+  # These are abstractions, which are sets of rules that can be included in multiple profiles.
+  include <abstractions/base>
+  include <abstractions/dovecot-common>
+  include <abstractions/openssl>
+
+  # These are capabilities, which are specific privileges that the Dovecot IMAP login service is allowed to use.
+  capability setuid,
+  capability sys_chroot,
+
+  # These rules allow the Dovecot IMAP login service to use various types of network sockets.
+  network inet stream,
+  network inet6 stream,
+  network unix stream,
+
+  # This rule allows the Dovecot IMAP login service to execute itself.
+  /usr/lib/dovecot/imap-login mr,
+
+  # These rules allow read and write access to various run files.
+  @{run}/dovecot/anvil rw,
+  @{run}/dovecot/login-master-notify* rw,
+  @{run}/dovecot/login/ r,
+  @{run}/dovecot/login/* rw,
+
+  # This rule allows read and write access to the Dovecot run directory.
+  owner /run/dovecot/* rw,
+
+}

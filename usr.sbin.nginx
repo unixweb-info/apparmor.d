@@ -1,0 +1,129 @@
+# Last Modified: Fri Jun 14 14:14:21 2024
+# Copyright (C) Author: Kriachko Aleksei admin@unixweb.info
+# This profile is for the Nginx web server.
+
+include <tunables/global>  # Includes global tunables, which are system-wide settings.
+
+# The profile begins here. The program path is /usr/sbin/nginx.
+/usr/sbin/nginx flags=(audit) {
+  # These are abstractions, which are sets of rules that can be included in multiple profiles.
+  include <abstractions/apache2-common>
+  include <abstractions/base>
+  include <abstractions/nameservice>
+  include <abstractions/nis>
+  include <abstractions/openssl>
+  include <abstractions/user-tmp>
+
+  # These are capabilities, which are specific privileges that the Nginx server is allowed to use.
+  capability chown,
+  capability dac_override,
+  capability dac_read_search,
+  capability net_bind_service,
+  capability setgid,
+  capability setuid,
+  capability sys_nice,
+  capability sys_resource,
+
+  # These rules allow read access to various configuration files and directories.
+  /etc/nginx/** r,
+
+  # These rules allow write access to various sockets.
+  /run/*.sock rw,
+
+  # These rules allow read and execute access to the Nginx binary and its linker.
+  /usr/lib/x86_64-linux-gnu/ld-*.so mr,
+  /usr/local/mgr5/www/letsencrypt/* r,
+  /usr/sbin/nginx mr,
+
+  # These rules allow read access to various shared resources.
+  /usr/share/javascript/** r,
+  /usr/share/javascript/codemirror/** r,
+  /usr/share/javascript/codemirror/addon/** r,
+  /usr/share/javascript/codemirror/addon/hint/* r,
+  /usr/share/javascript/jquery-ui/themes/base/* r,
+  /usr/share/nginx/** r,
+  /usr/share/nodejs/bootstrap/dist/css/* r,
+  /usr/share/nodejs/bootstrap/dist/js/* r,
+  /usr/share/phpmyadmin/** r,
+  /usr/share/phpmyadmin/js/* r,
+  /usr/share/phpmyadmin/js/codemirror/** r,
+  /usr/share/phpmyadmin/js/vendor/** r,
+  /usr/share/phpmyadmin/themes/pmahomme/** r,
+  /usr/share/roundcube/* r,
+  /usr/share/roundcube/** r,
+
+  # These rules allow write access to the ModSecurity log files.
+  /var/log/ModSecurity-Debug.log wk,
+  /var/log/modsec_audit.log wk,
+
+  # This rule allows write access to the Nginx log directory.
+  /var/log/nginx/*.log w,
+
+  # These rules allow write access to various user data logs.
+  @{USERDATA}/logs/* w,
+
+  # These rules allow read access to the user's web files.
+  @{USERDATA}/www/*/ r,
+  @{USERDATA}/www/*/* r,
+  @{USERDATA}/www/*/** r,
+
+  # This rule allows write access to the Apache2 log directory.
+  /var/www/httpd-logs/* w,
+
+  # This rule allows read access to the index.html file.
+  /var/www/index.html r,
+
+  # These rules allow read access to various configuration files owned by the user.
+  owner /etc/nginx/* r,
+  owner /etc/nginx/*/ r,
+  owner /etc/nginx/conf.d/* r,
+  owner /etc/nginx/modules-enabled/* r,
+  owner /etc/nginx/ssl-certs/* r,
+
+  # This rule allows read access to the boot_id file.
+  owner /proc/sys/kernel/random/boot_id r,
+
+  # These rules allow read and write access to various run files owned by the user.
+  owner /run/nginx.pid r,
+  owner /run/nginx.pid w,
+  owner /run/systemd/userdb/ r,
+
+  # These rules allow read and execute access to the Nginx modules.
+  owner /usr/lib/nginx/modules/* mr,
+
+  # These rules allow read access to the manager certificates.
+  owner /usr/local/mgr5/etc/manager.crt r,
+  owner /usr/local/mgr5/etc/manager.key r,
+
+  # These rules allow read and execute access to the ModSecurity library.
+  owner /usr/local/modsecurity/lib/lib*so* m,
+  owner /usr/local/modsecurity/lib/lib*so* r,
+
+  # These rules allow read and write access to the Nginx cache.
+  owner /var/cache/nginx/** rw,
+  owner /var/cache/nginx/*/ r,
+  owner /var/cache/nginx/*/ w,
+  owner /var/cache/nginx/client_temp/* rw,
+  owner /var/cache/nginx/fastcgi_cache/** r,
+  owner /var/cache/nginx/fastcgi_cache/** w,
+  owner /var/cache/nginx/fastcgi_temp/** rw,
+  owner /var/cache/nginx/proxy_cache/** rw,
+  owner /var/cache/nginx/proxy_cache/**/ w,
+  owner /var/cache/nginx/proxy_cache/*/ w,
+  owner /var/cache/nginx/proxy_temp/** rw,
+
+  # These rules allow read and write access to the Nginx body directory.
+  owner /var/lib/nginx/body/* rw,
+
+  # These rules allow read and write access to the Nginx proxy.
+  owner /var/lib/nginx/proxy/** rw,
+  owner /var/lib/nginx/proxy_temp/** w,
+
+  # This rule allows write access to the ModSecurity debug log.
+  owner /var/log/*-modsec_debug.log w,
+
+  # These rules allow read access to the HTTPD certificates.
+  owner /var/www/httpd-cert/* r,
+  owner /var/www/httpd-cert/** r,
+
+}

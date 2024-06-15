@@ -1,0 +1,116 @@
+# Last Modified: Fri Jun 14 15:25:49 2024
+# Copyright (C) Author: Kriachko Aleksei admin@unixweb.info
+# This profile is for the php-fpm program, typically used for running PHP scripts in a web server context.
+
+abi <abi/3.0>,  # Specifies the ABI version for the profile.
+
+include <tunables/global>  # Includes global tunables, which are system-wide settings.
+
+# vim: ft=apparmor  # Sets the filetype to apparmor for syntax highlighting in vim.
+
+# The profile begins here. The program path is /usr/sbin/php-fpm*.
+profile php-fpm /usr/sbin/php-fpm* flags=(attach_disconnected) {
+  # These are abstractions, which are sets of rules that can be included in multiple profiles.
+  include <abstractions/base>
+  include <abstractions/nameservice>
+  include <abstractions/openssl>
+  include <abstractions/php>
+  include <abstractions/ssl_certs>
+  include <abstractions/user-tmp>
+
+  # These are capabilities, which are specific privileges that the program is allowed to use.
+  capability chown,
+  capability dac_override,
+  capability kill,
+  capability net_admin,
+  capability setgid,
+  capability setuid,
+
+  # This rule denies read and write access to the root directory.
+  deny / rw,
+
+  # These rules allow read access to various configuration files and directories.
+  /etc/php/8.1/* r,
+  /etc/phpmyadmin/* r,
+  /etc/phpmyadmin/*/ r,
+  /etc/roundcube/* r,
+  /etc/roundcube/** r,
+
+  # These rules allow write access to various sockets.
+  /run/*.sock w,
+  /run/mysqld/mysqld.sock rw,
+
+  # This rule allows the program to execute itself.
+  /usr/sbin/php-fpm* rix,
+
+  # These rules allow read access to various shared resources.
+  /usr/share/phpmyadmin/* r,
+  /usr/share/phpmyadmin/** r,
+  /usr/share/roundcube/** r,
+
+  # These rules allow read access to various library files.
+  /var/lib/phpmyadmin/* r,
+  /var/lib/roundcube/*/ r,
+
+  # This rule allows write access to the program's log file.
+  /var/log/php*-fpm.log rw,
+
+  # These rules allow write access to various user data logs.
+  @{USERDATA}/logs/*.log w,
+
+  # These rules allow read and write access to various process attributes.
+  @{PROC}/@{pid}/attr/{apparmor/,}current rw,
+
+  # These rules allow read and write access to various process identifiers and sockets.
+  @{run}/php{,-fpm}/php*-fpm.pid rw,
+  @{run}/php{,-fpm}/php*-fpm.sock rwlk,
+
+  # These rules allow read and write access to various run files owned by the user.
+  owner /run/*.fpm* r,
+  owner /run/*.sock rw,
+  owner /run/systemd/notify w,
+
+  # These rules allow write access to various log files owned by the user.
+  owner /var/lib/errors.log w,
+  owner /var/lib/phpmyadmin/tmp/** rw,
+  owner /var/log/roundcube/errors.log w,
+  owner /var/log/roundcube/sendmail.log w,
+
+  # These rules allow various access to the user's temporary files.
+  owner @{USERDATA}/tmp/* k,
+  owner @{USERDATA}/tmp/* w,
+  owner @{USERDATA}/tmp/** r,
+  owner @{USERDATA}/tmp/sess_** rwk,
+
+  # These rules allow read access to the user's web files.
+  owner @{USERDATA}/www/*/** r,
+
+  # These rules for the full operation of the WordPress CMS allow write access to various files. Any rules may require modification.
+  owner @{USERDATA}/www/*/sap-logs/logs-*.txt w,
+  owner @{USERDATA}/www/*/wp-admin/post.php rw,
+  owner @{USERDATA}/www/*/wp-content/advanced-cache.php rw,
+  owner @{USERDATA}/www/*/wp-content/cache rw,
+  owner @{USERDATA}/www/*/wp-content/cache/** w,
+  owner @{USERDATA}/www/*/wp-content/logs rw,
+  owner @{USERDATA}/www/*/wp-content/logs/wbcr_clearfy/app.log rw,
+  owner @{USERDATA}/www/*/wp-content/plugins/curopayments-payment-woocommerce2/log rw,
+  owner @{USERDATA}/www/*/wp-content/plugins/user-spam-remover/log rw,
+  owner @{USERDATA}/www/*/wp-content/temp rw,
+  owner @{USERDATA}/www/*/wp-content/uploads/**.gif w,
+  owner @{USERDATA}/www/*/wp-content/uploads/**.jpg w,
+  owner @{USERDATA}/www/*/wp-content/uploads/**.mp4 w,
+  owner @{USERDATA}/www/*/wp-content/uploads/**.png w,
+  owner @{USERDATA}/www/*/wp-content/w3tc-config rw,
+  owner @{USERDATA}/www/*/wp-content/w3tc-config/master.php rw,
+  owner @{USERDATA}/www/*/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/** w,
+  owner @{USERDATA}/www/*/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/**.jpg.webp w,
+  owner @{USERDATA}/www/*/wp-content/wflogs wk,
+  owner @{USERDATA}/www/*/wp-content/wflogs/*.php rwk,
+  owner @{USERDATA}/www/*/wp-content/wflogs/*.php wk,
+  owner @{USERDATA}/www/*/wp-content/wflogs/config-synced.php rw,
+  owner @{USERDATA}/www/*/wp-content/wflogs/config.tmp.* wk,
+  owner @{USERDATA}/www/*/wp-content/wp-rocket-config rwk,
+  owner @{USERDATA}/www/*/wp-content/temp-write-* w,
+  owner @{USERDATA}/www/*/wp-content/uploads/temp-write-test-* w,
+
+}

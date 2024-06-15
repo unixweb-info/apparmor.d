@@ -1,0 +1,75 @@
+# vim:syntax=apparmor
+# Last Modified: Fri Jun 14 14:14:21 2024
+# Copyright (C) Author: Kriachko Aleksei admin@unixweb.info
+
+# Author: Jamie Strandboge <jamie@ubuntu.com>
+# Last Modified: Sun Aug  3 09:39:03 2008
+
+#include <tunables/global>
+
+# This is the start of the AppArmor profile for ClamAV's freshclam update tool
+/usr/bin/freshclam flags=(attach_disconnected) {
+  # Include base abstractions
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/user-tmp>
+  #include <abstractions/openssl>
+
+  # Allow various capabilities
+  capability dac_override,
+  capability chown,
+  capability setgid,
+  capability setuid,
+
+  # Read access to filesystems
+  @{PROC}/filesystems r,
+  # Read access to process status
+  owner @{PROC}/[0-9]*/status r,
+
+  # Read access to ClamAV configuration
+  /etc/clamav/clamd.conf r,
+  /etc/clamav/freshclam.conf r,
+  # Execute ClamAV on-error scripts
+  /etc/clamav/onerrorexecute.d/* mr,
+  # Execute ClamAV on-update scripts
+  /etc/clamav/onupdateexecute.d/* mr,
+  # Execute ClamAV virus event scripts
+  /etc/clamav/virusevent.d/* mr,
+
+  # Read and write access to ClamTK database
+  owner @{HOME}/.clamtk/db/ rw,
+  owner @{HOME}/.clamtk/db/** rwk,
+
+  # Read and write access to KlamAV database
+  owner @{HOME}/.klamav/database/ rw,
+  owner @{HOME}/.klamav/database/** rwk,
+
+  # Read and write access to ClamTK database
+  owner @{USERDATA}/.clamtk/db/ rw,
+  owner @{USERDATA}/.clamtk/db/** rwk,
+
+  # Read and write access to KlamAV database
+  owner @{USERDATA}/.klamav/database/ rw,
+  owner @{USERDATA}/.klamav/database/** rwk,
+
+  # Execute freshclam binary
+  /usr/bin/freshclam mr,
+
+  # Read access to ClamAV database
+  /var/lib/clamav/ r,
+  # Read and write access to ClamAV database
+  /var/lib/clamav/** krw,
+
+  # Read and write access to ClamAV logs
+  /var/log/clamav/* krw,
+  # Write access to freshclam PID file
+  /{,var/}run/clamav/freshclam.pid w,
+  # Read and write access to clamd control file
+  /{,var/}run/clamav/clamd.ctl rw,
+
+  # Deny access to Samba cache and unexpected files
+  deny /{,var/}run/samba/{gencache,unexpected}.tdb mrwkl,
+
+  # Site-specific additions and overrides. See local/README for details.
+  #include <local/usr.bin.freshclam>
+}

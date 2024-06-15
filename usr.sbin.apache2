@@ -1,0 +1,122 @@
+# Last Modified: Sat Jun 15 12:34:04 2024
+# Copyright (C) Author: Kriachko Aleksei admin@unixweb.info
+# This profile is for the Apache2 web server.
+
+include <tunables/global>  # Includes global tunables, which are system-wide settings.
+
+# The profile begins here. The program path is /usr/{bin,sbin}/apache2.
+profile apache2 /usr/{bin,sbin}/apache2 flags=(attach_disconnected) {
+  # These are abstractions, which are sets of rules that can be included in multiple profiles.
+  include <abstractions/apache2-common>
+  include <abstractions/base>
+  include <abstractions/nameservice>
+  include <abstractions/openssl>
+  include <abstractions/php-worker>
+  include <abstractions/php>
+  include <abstractions/user-tmp>
+
+  # These are additional profile includes.
+  include <apache2.d>
+  include <local/usr.sbin.apache2>
+
+  # These are capabilities, which are specific privileges that the Apache2 server is allowed to use.
+  capability chown,
+  capability dac_override,
+  capability kill,
+  capability net_bind_service,
+  capability setgid,
+  capability setuid,
+  capability sys_admin,
+  capability sys_tty_config,
+
+  # This rule allows the Apache2 server to send signals to peer processes.
+  signal send peer=@{profile_name}//*,
+
+  # These rules allow read access to various configuration files and directories.
+  /etc/ImageMagick-6/coder.xml r,
+  /etc/ImageMagick-6/magic.xml r,
+  /etc/hosts r,
+  /etc/php/8.1/* r,
+  /etc/phpmyadmin/* r,
+  /etc/phpmyadmin/*/ r,
+  /etc/roundcube/** r,
+
+  # These rules allow write access to various sockets.
+  /run/*.sock w,
+  /run/apache2/* w,
+  /run/mysqld/mysqld.sock rw,
+  /run/systemd/resolve/stub-resolv.conf r,
+
+  # These rules allow read access to various shared resources.
+  /usr/share/ImageMagick-6/english.xml r,
+  /usr/share/ImageMagick-6/locale.xml r,
+  /usr/share/phpmyadmin/* r,
+  /usr/share/phpmyadmin/** r,
+  /usr/share/roundcube/ r,
+  /usr/share/roundcube/config/ r,
+  /usr/share/roundcube/plugins/ r,
+  /usr/share/roundcube/temp/ rw,
+  /var/lib/phpmyadmin/* r,
+  /var/lib/roundcube/** r,
+
+  # This rule allows write access to the Apache2 lock directory.
+  /var/lock/apache2/* wk,
+
+  # This rule allows write access to the Roundcube log directory.
+  /var/log/roundcube/** w,
+
+  # This rule allows write access to the Apache2 log directory.
+  /var/www/httpd-logs/*.log w,
+
+  # These rules allow write access to various user data logs.
+  @{USERDATA}/logs/**.log w,
+
+  # These rules allow read and write access to various run files owned by the user.
+  deny / rw,
+  owner /etc/ImageMagick-6/log.xml r,
+  owner /etc/ImageMagick-6/policy.xml r,
+  owner /etc/apache2/* r,
+  owner /etc/apache2/** r,
+  owner /etc/gai.conf r,
+  owner /etc/group r,
+  owner /etc/host.conf r,
+  owner /etc/mime.types r,
+  owner /etc/nsswitch.conf r,
+  owner /proc/sys/kernel/random/boot_id r,
+  owner /run/*.sock rw,
+  owner /run/apache2/* rw,
+  owner /run/fast.fpm* r,
+  owner /run/systemd/notify w,
+  owner /run/systemd/userdb/ r,
+  owner /run/systemd/userdb/io.systemd.DynamicUser rw,
+  owner /var/lib/apache2/fcgid/shm w,
+  owner /var/lib/phpmyadmin/tmp/** rw,
+  owner /var/log/apache2/*.log w,
+  owner /var/log/roundcube/errors.log w,
+  owner /var/log/roundcube/sendmail.log w,
+
+  # These rules allow various access to the user's temporary files.
+  owner @{USERDATA}/tmp/* k,
+  owner @{USERDATA}/tmp/* w,
+  owner @{USERDATA}/tmp/** r,
+
+  # These rules allow read access to the user's web files.
+  owner @{USERDATA}/www/*/** r,
+
+  # These rules for the full operation of the WordPress CMS allow write access to various files. Any rules may require modification.
+
+  owner @{USERDATA}/www/*/sap-logs/logs-*.txt w,
+  owner @{USERDATA}/www/*/wp-content/cache/** w,
+  owner @{USERDATA}/www/*/wp-content/temp-write-* w,
+  owner @{USERDATA}/www/*/wp-content/uploads/** w,
+  owner @{USERDATA}/www/*/wp-content/uploads/**.gif w,
+  owner @{USERDATA}/www/*/wp-content/uploads/**.jpg w,
+  owner @{USERDATA}/www/*/wp-content/uploads/**.mp4 w,
+  owner @{USERDATA}/www/*/wp-content/uploads/**.png w,
+  owner @{USERDATA}/www/*/wp-content/uploads/temp-write-test-* w,
+  owner @{USERDATA}/www/*/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/** w,
+  owner @{USERDATA}/www/*/wp-content/webp-express/webp-images/doc-root/wp-content/uploads/**.jpg.webp w,
+  owner @{USERDATA}/www/*/wp-content/wflogs/*.php rwk,
+  owner @{USERDATA}/www/*/wp-content/wflogs/config.tmp.* wk,
+
+}

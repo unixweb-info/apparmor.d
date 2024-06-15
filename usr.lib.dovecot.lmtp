@@ -1,0 +1,45 @@
+# Last Modified: Fri Jun 14 14:14:21 2024
+# Copyright (C) Author: Kriachko Aleksei admin@unixweb.info
+# This profile is for the Dovecot LMTP (Local Mail Transfer Protocol) service.
+
+include <tunables/global>  # Includes global tunables, which are system-wide settings.
+
+# The profile begins here. The program path is /usr/lib/dovecot/lmtp.
+profile dovecot-lmtp /usr/lib/dovecot/lmtp {
+  # These are abstractions, which are sets of rules that can be included in multiple profiles.
+  include <abstractions/base>
+  include <abstractions/nameservice>
+  include <abstractions/dovecot-common>
+  include <abstractions/openssl>
+  include <abstractions/ssl_certs>
+  include <abstractions/ssl_keys>
+
+  # These are capabilities, which are specific privileges that the Dovecot LMTP service is allowed to use.
+  capability dac_override,
+  capability dac_read_search,
+  capability setuid,
+
+  # These rules allow read and write access to the Dovecot mail store.
+  @{DOVECOT_MAILSTORE}/ rw,
+  @{DOVECOT_MAILSTORE}/** rwkl,
+
+  # These rules allow read access to the Dovecot svbin file in the home directory and user data directories.
+  @{HOME}/.dovecot.svbin r,
+  @{USERDATA}/.dovecot.svbin r,
+
+  # These rules allow read and write access to the current attribute file of each process and the mounts file.
+  @{PROC}/@{pid}/attr/{apparmor/,}current rw,
+  @{PROC}/*/mounts r,
+
+  # These rules allow read and write access to the Dovecot LMTP temporary files.
+  /tmp/dovecot.lmtp.* rw,
+
+  # This rule allows the Dovecot LMTP service to execute itself.
+  /usr/lib/dovecot/lmtp mr,
+
+  # This rule allows read access to the Dovecot mounts file.
+  @{run}/dovecot/mounts r,
+
+  # Site-specific additions and overrides. See local/README for details.
+  # include if exists <local/usr.lib.dovecot.lmtp>
+}

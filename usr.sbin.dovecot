@@ -1,0 +1,98 @@
+# Last Modified: Wed Jul 26 03:04:58 2023
+# Copyright (C) Author: Kriachko Aleksei admin@unixweb.info
+# This profile is for the Dovecot mail server.
+
+include <tunables/global>  # Includes global tunables, which are system-wide settings.
+
+# The profile begins here. The program path is /usr/{bin,sbin}/dovecot.
+profile dovecot /usr/{bin,sbin}/dovecot flags=(attach_disconnected) {
+  # These are abstractions, which are sets of rules that can be included in multiple profiles.
+  include <abstractions/authentication>
+  include <abstractions/base>
+  include <abstractions/dovecot-common>
+  include <abstractions/mysql>
+  include <abstractions/nameservice>
+  include <abstractions/ssl_certs>
+  include <abstractions/ssl_keys>
+
+  # These are capabilities, which are specific privileges that the Dovecot server is allowed to use.
+  capability chown,
+  capability dac_override,
+  capability dac_read_search,
+  capability fsetid,
+  capability kill,
+  capability net_bind_service,
+  capability setuid,
+  capability sys_chroot,
+  capability sys_resource,
+
+  # These rules allow the Dovecot server to send signals to peer processes.
+  signal send set=(int kill quit term) peer=/usr/lib/dovecot/*,
+  signal send set=(int kill quit term) peer=dovecot-*,
+
+  # These rules allow the Dovecot server to use UNIX domain sockets.
+  unix (receive, send) type=stream peer=(label=/usr/lib/dovecot/anvil),
+  unix (receive, send) type=stream peer=(label=dovecot-anvil),
+
+  # These rules allow read access to various configuration files and directories.
+  /etc/dovecot/** r,
+  /etc/exim4/ssl/* r,
+  /etc/lsb-release r,
+  /etc/mtab r,
+
+  # These rules allow the Dovecot server to execute the Doveconf program.
+  /usr/bin/doveconf rix,
+
+  # These rules allow read and execute access to various Dovecot binaries.
+  /usr/lib/dovecot/anvil mrPx,
+  /usr/lib/dovecot/auth mrPx,
+  /usr/lib/dovecot/config mrPx,
+  /usr/lib/dovecot/dict mrPx,
+  /usr/lib/dovecot/dovecot-auth mrPx,
+  /usr/lib/dovecot/imap mrPx,
+  /usr/lib/dovecot/imap-login mrPx,
+  /usr/lib/dovecot/lmtp mrPx,
+  /usr/lib/dovecot/log mrPx,
+  /usr/lib/dovecot/managesieve mrPx,
+  /usr/lib/dovecot/managesieve-login mrPx,
+  /usr/lib/dovecot/pop3 mrPx,
+  /usr/lib/dovecot/pop3-login mrPx,
+  /usr/lib/dovecot/script-login Px,
+  /usr/lib/dovecot/ssl-build-param rix,
+  /usr/lib/dovecot/ssl-params mrPx,
+  /usr/lib/dovecot/stats Px,
+
+  # These rules allow read access to the Dovecot DH parameters and protocols directory.
+  /usr/share/dovecot/dh.pem r,
+  /usr/share/dovecot/protocols.d/ r,
+  /usr/share/dovecot/protocols.d/** r,
+
+  # These rules allow the Dovecot server to execute itself.
+  /usr/{bin,sbin}/dovecot mrix,
+
+  # These rules allow write access to the Dovecot library directory.
+  /var/lib/dovecot/ w,
+  /var/lib/dovecot/* rwlk,
+
+  # These rules allow write access to the Postfix private directories.
+  /var/spool/postfix/private/auth w,
+  /var/spool/postfix/private/dovecot-lmtp w,
+
+  # These rules allow read access to the process mounts file and the suid_dumpable file.
+  @{PROC}/@{pid}/mounts r,
+  @{PROC}/sys/fs/suid_dumpable r,
+
+  # These rules allow read and write access to the Dovecot run directory.
+  @{run}/dovecot/ rw,
+  @{run}/dovecot/** rw,
+
+  # This rule allows the Dovecot server to create symbolic links in the Dovecot run directory.
+  link @{run}/dovecot/** -> /var/lib/dovecot/**,
+
+  # This rule allows write access to the systemd notify socket.
+  owner /run/systemd/notify w,
+
+  # These rules allow read access to the HTTPD certificates.
+  owner /var/www/httpd-cert/** r,
+
+}
