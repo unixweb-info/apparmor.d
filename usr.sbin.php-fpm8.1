@@ -70,6 +70,11 @@ profile php-fpm /usr/sbin/php-fpm* flags=(attach_disconnected) {
   owner /run/*.sock rw,
   owner /run/systemd/notify w,
 
+  # This rule allows the owner of files under the /etc/php/8.1/fpm/ directory
+  # to read those files. This is typically used to restrict a process running
+  # as a certain user from accessing files that it owns.
+  owner /etc/php/8.1/fpm/** r,
+
   # These rules allow write access to various log files owned by the user.
   owner /var/lib/errors.log w,
   owner /var/lib/phpmyadmin/tmp/** rw,
