@@ -16,9 +16,9 @@ To use these profiles, you would typically install AppArmor on your server, plac
 `wget https://raw.githubusercontent.com/unixweb-info/Automatic-configuration-of-AppArmor-profiles-in-ISPmanager/main/apparmor-install-and-setting-in-ispmanager6.sh`
 
 ### Make the downloaded script executable
-`markdown chmod +x apparmor-install-and-setting-in-ispmanager6.sh`
+`chmod +x apparmor-install-and-setting-in-ispmanager6.sh`
 ### Run the script
-`markdown ./apparmor-install-and-setting-in-ispmanager6.sh`
+`./apparmor-install-and-setting-in-ispmanager6.sh`
 #### Bash Script
 ```bash
 #!/bin/bash
