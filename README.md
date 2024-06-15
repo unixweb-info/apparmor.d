@@ -16,14 +16,16 @@ To use these profiles, you would typically install AppArmor on your server, plac
 # Download the script from the provided URL
 wget https://raw.githubusercontent.com/unixweb-info/Automatic-configuration-of-AppArmor-profiles-in-ISPmanager/main/apparmor-install-and-setting-in-ispmanager6.sh
 
-# Make the downloaded script executable
+```
+### Make the downloaded script executable
+```bash
 chmod +x apparmor-install-and-setting-in-ispmanager6.sh
-
-# Run the script
+```
+### Run the script
+```bash
 ./apparmor-install-and-setting-in-ispmanager6.sh
 
 ```
-
 #### Bash Script
 ```bash
 #!/bin/bash
